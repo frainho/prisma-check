@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  build_and_test:
+  lint_and_test:
     name: prisma-check 
     runs-on: ubuntu-latest
     steps:
