@@ -1,0 +1,22 @@
+name: Run lint and test 
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  build_and_test:
+    name: prisma-check 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
