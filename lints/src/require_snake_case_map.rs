@@ -63,3 +63,90 @@ impl Rule for RequireSnakeCaseMap {
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use psl::Diagnostics;
+
+    use crate::{require_snake_case_map::RequireSnakeCaseMap, Rule};
+
+    #[test]
+    fn it_does_not_detect_errors_when_all_fields_are_snake_case() {
+        let mut diagnostics = Diagnostics::new();
+        let schema = r#"
+            model User {
+              id    Int     @id @default(autoincrement())
+              email String  @unique
+              name  String?
+              posts Post[]
+              createdAt DateTime @default(now()) @map("created_at")
+              updatedAt DateTime @updatedAt @map("created_at")
+            }
+        "#;
+        let schema_ast = psl::schema_ast::parse_schema(schema, &mut diagnostics);
+
+        RequireSnakeCaseMap::check(&schema_ast, &mut diagnostics);
+
+        assert_eq!(diagnostics.errors().len(), 0);
+    }
+
+    #[test]
+    fn it_does_not_complain_with_a_field_with_a_single_word() {
+        let mut diagnostics = Diagnostics::new();
+        let schema = r#"
+            model User {
+              email String @unique
+            }
+        "#;
+        let schema_ast = psl::schema_ast::parse_schema(schema, &mut diagnostics);
+
+        RequireSnakeCaseMap::check(&schema_ast, &mut diagnostics);
+
+        assert_eq!(diagnostics.errors().len(), 0);
+    }
+
+    #[test]
+    fn it_complains_when_a_field_is_not_snake_case() {
+        let mut diagnostics = Diagnostics::new();
+        let schema = r#"
+            model User {
+              createdAt String @unique
+            }
+        "#;
+        let schema_ast = psl::schema_ast::parse_schema(schema, &mut diagnostics);
+
+        RequireSnakeCaseMap::check(&schema_ast, &mut diagnostics);
+
+        assert_eq!(diagnostics.errors().len(), 1);
+    }
+
+    #[test]
+    fn it_complains_when_a_field_has_an_invalid_map_attribute() {
+        let mut diagnostics = Diagnostics::new();
+        let schema = r#"
+            model User {
+              createdAt String @unique @map()
+            }
+        "#;
+        let schema_ast = psl::schema_ast::parse_schema(schema, &mut diagnostics);
+
+        RequireSnakeCaseMap::check(&schema_ast, &mut diagnostics);
+
+        assert_eq!(diagnostics.errors().len(), 1);
+    }
+
+    #[test]
+    fn it_complains_when_the_map_attribute_is_not_snake_case() {
+        let mut diagnostics = Diagnostics::new();
+        let schema = r#"
+            model User {
+              createdAt String @unique @map("createdAt")
+            }
+        "#;
+        let schema_ast = psl::schema_ast::parse_schema(schema, &mut diagnostics);
+
+        RequireSnakeCaseMap::check(&schema_ast, &mut diagnostics);
+
+        assert_eq!(diagnostics.errors().len(), 1);
+    }
+}
