@@ -156,15 +156,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cli"
-version = "0.1.0"
-dependencies = [
- "clap",
- "lints",
- "psl",
-]
-
-[[package]]
 name = "codespan-reporting"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -648,6 +639,15 @@ dependencies = [
  "once_cell",
  "pest",
  "sha2",
+]
+
+[[package]]
+name = "prisma-check-cli"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "lints",
+ "psl",
 ]
 
 [[package]]

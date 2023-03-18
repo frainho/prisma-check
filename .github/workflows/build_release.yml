@@ -1,0 +1,30 @@
+name: Run lint and test 
+on:
+  push:
+    branches: [main]
+jobs:
+  build_and_publish:
+    name: prisma-check 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+       - uses: taiki-e/upload-rust-binary-action@v1
+         with:
+          bin: prisma-check-cli
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+
